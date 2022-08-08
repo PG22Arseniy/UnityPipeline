@@ -4,9 +4,15 @@ namespace PipelineForUnity
 {
     public partial class Form1 : Form
     {
+        public static List<String> ProjectNameList = new List<string>(); 
+
         public Form1()
         {
             InitializeComponent();
+            foreach (string line in System.IO.File.ReadLines("ProjectNames.txt"))
+            {
+                ProjectNameList.Add(line);
+            }
         }
 
         private void ProjectNameTextBox_TextChanged(object sender, EventArgs e)
@@ -18,13 +24,32 @@ namespace PipelineForUnity
         {
             String name = ProjectNameTextBox.Text;
 
-            string command = @" -createProject " + @"./" + name; 
-            ////string command = "write";   
+            foreach (string line in ProjectNameList)
+            {
+                if (name == line)
+                {
+                    OutputTextBox.Text = "This Name Exists";
+                    return;
+                }
+            }
+             
+            ProjectNameList.Add(name);
 
-            //Process.Start("cmd.exe", command);   
-            System.Diagnostics.Process.Start(@"C:\Program Files\Unity\Hub\Editor\2021.2.17f1\Editor\Unity.exe", @" -createProject " + @"./" + name);       
-            //Process.Start(command); 
-        } 
+            OutputTextBox.Text = "SUCCESS";
 
+
+            string ARGS = @" -createProject " + @"./" + name;
+            string EXE = @"C:\Program Files\Unity\Hub\Editor\2021.2.17f1\Editor\Unity.exe";
+            System.Diagnostics.Process.Start(EXE, ARGS); 
+
+            File.WriteAllLines("ProjectNames.txt", ProjectNameList);      
+
+        }
+
+        private void ToManagerButton_Click(object sender, EventArgs e)
+        { 
+            this.Hide(); 
+            (new Form2()).Show(); 
+        }
     }
 }
